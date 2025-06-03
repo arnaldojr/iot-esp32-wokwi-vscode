@@ -13,11 +13,12 @@ const char *SSID = "Wokwi-GUEST";
 const char *PASSWORD = "";  // Substitua pelo sua senha
 
 // Configurações de MQTT
-const char *BROKER_MQTT = "broker.hivemq.com";
+// const char *BROKER_MQTT = "54.157.123.32";
+const char *BROKER_MQTT = "broker.hivemq.com"; // Exemplo de broker público
 const int BROKER_PORT = 1883;
-const char *ID_MQTT = "esp32_mqtt";
-const char *TOPIC_SUBSCRIBE_LED = "fiap/iot/led";
-const char *TOPIC_PUBLISH_TEMP_HUMI = "fiap/iot/temphumi";
+const char *ID_MQTT = "esp32_mqtt-tioza";
+const char *TOPIC_SUBSCRIBE_LED = "fe20/iot/led";
+const char *TOPIC_PUBLISH_TEMP_HUMI = "fe20/iot/temphumi";
 
 // Configurações de Hardware
 #define PIN_DHT 12
@@ -76,7 +77,8 @@ void callbackMQTT(char *topic, byte *payload, unsigned int length) {
   
   //Serial.printf("Mensagem recebida via MQTT: %s do tópico: %s\n", msg.c_str(), topic);
 
-  StaticJsonDocument<TAMANHO> json;
+  //StaticJsonDocument<TAMANHO> json; //era assim na versao 6
+  JsonDocument json;
   DeserializationError error = deserializeJson(json, msg);
   
   if (error) {
@@ -84,7 +86,8 @@ void callbackMQTT(char *topic, byte *payload, unsigned int length) {
     return;
   }
 
-  if (json.containsKey("led")) {
+  //if (json.containsKey("led")) {  //era assim na versao 6
+  if (json["led"].is<int>()) {
     int valor = json["led"];
     if (valor == 1) {
       digitalWrite(PIN_LED, HIGH);
@@ -163,7 +166,8 @@ void loop() {
       lastHumidity = sensorValues.humidity;
       lastLedState = digitalRead(PIN_LED);
 
-      StaticJsonDocument<TAMANHO> doc;
+      //StaticJsonDocument<TAMANHO> doc; //era assim na versao 6
+      JsonDocument doc;
       doc["temperatura"] = sensorValues.temperature;
       doc["umidade"] = sensorValues.humidity;
       doc["status_led"] = lastLedState ? "on" : "off";
